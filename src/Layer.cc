@@ -257,35 +257,50 @@ void Layer::cutAtEta(double eta) {
 
 // TODO: complete this
 void Layer::buildAndStoreSkewedLayer() {
-  const double rodCenterPhiShift = 2 * M_PI / numRods();
-  const RodTemplate = makeRodTemplate(); 
+  std::cout << "ciao " << std::endl;
+  const double rodCenterPhiShift = 2 * M_PI / numRods.state();
+  //const RodTemplate = makeRodTemplate();
+  const RodTemplate rodTemplate = makeRodTemplate();
   const double firstRodCenterPhi = (rotateLayerByRodsDeltaPhiHalf()) ? rodCenterPhiShift / 2. : 0;
-
-  for (int iLadder=0; iLadder<numRods(); ++iLadder) {
-
+  //const bool isPlusBigDeltaRod = True; //is it correct?
+  const bool isPlusBigDeltaRod = true; //is it correct?
+  std::cout << "ciao 2 " << std::endl;
+  //for (int iLadder=0; iLadder<numRods.state(); ++iLadder) {
+  for (int iLadder=0; iLadder<numRods.state(); ++iLadder) {
     // CREATE LADDERS
+    std::cout << "in if pre " << std::endl;
     StraightRodPair* aLadder = GeometryFactory::make<StraightRodPair>(subdetectorName());
+    std::cout << "in if pre 1 " << std::endl;
     assignRodCommonProperties(aLadder);
+    std::cout << "in if pre 2 " << std::endl;
     aLadder->myid(iLadder+1);
-
+    std::cout << "in if " << std::endl;
     int shiftDirection = (iLadder%2)*2-1;
     if (isPlusBigDeltaRod) shiftDirection *= -1;
-    double ladderRadius = placeRadius_ + shiftDirection * 2 * bigDelta(); // TODO: remove this factor 2
+    double ladderRadius = placeRadius_ + shiftDirection * bigDelta(); // TODO: remove this factor 2
     placeAndStoreRod(aLadder, rodTemplate, bigParity(), firstRodCenterPhi, ladderRadius);
 
     // PHI ROTATION
     double ladderPhi;
-    if (false) { // TODO: change this into !manualPhi.state() 
+    std::cout << "in if 2 " << std::endl;
+    if (!(aLadder->manualPhi.state())) { // TODO: change this into !manualPhi.state(), was false before 
+      std::cout << "no manualPhi " << std::endl;
       ladderPhi = rodCenterPhiShift * iLadder + firstRodCenterPhi;
     } else {
-      ladderPhi = 0;
+      std::cout << "manualPhi is defined and its value is " << aLadder->manualPhi.state() << std::endl;
+      ladderPhi = aLadder->manualPhi.state() + firstRodCenterPhi;
+     // ladderPhi = 0;
       // TODO: change this into ladderPhi = manualPhi() + firstRodCenterPhi;
     }
+    std::cout << "first check " << std::endl;
     aLadder->rotateZ(ladderPhi);
 
     // STORE
+    std::cout << "second check " << std::endl;
     rods_.push_back(aLadder);
+    std::cout << "third check " << std::endl;
   }
+  return;
 }
 
 /* PRIVATE */
@@ -299,11 +314,18 @@ void Layer::buildAndStoreSkewedLayer() {
 void Layer::buildStraight() {
 
   // If the skew angle is assigned per-module, we do not use templates at all
-  if (isSkewed()) {
+  //if (!(isSkewed())) {
+  //  buildAndStoreSkewedLayer();
+  //  return;
+  //}
+
+  if ((isSkewed())){
+    std::cout << "pre the function " << std::endl;
     buildAndStoreSkewedLayer();
+    std::cout << "after the function " << std::endl;
     return;
   }
-
+  std::cout << "after the function 2 " << std::endl;
   // COMPUTES A ROD TEMPLATE
   RodTemplate rodTemplate = makeRodTemplate();
 
@@ -562,7 +584,7 @@ const bool Layer::placeAndStoreFirstRod(StraightRodPair* firstRod, const RodTemp
 
   // PLACE AND STORE
   const bool isFirstRodAtPlusBigDelta = (!isSkewedForInstallation() ? (bigParity() > 0) : false);
-  placeAndStoreRod(firstRod, rodTemplate, isFirstRodAtPlusBigDelta, firstRodCenterPhi);
+  placeAndStoreRod(firstRod, rodTemplate, isFirstRodAtPlusBigDelta, firstRodCenterPhi, placeRadius()); //ladderRadius); //not sure
   const bool isFlatPart = isTilted();
   if (!isFlatPart) { buildNumModulesFlat(firstRod->numModulesSide(1)); }
 
@@ -588,7 +610,7 @@ void Layer::placeAndStoreSecondRod(StraightRodPair* secondRod, const RodTemplate
 
   // PLACE AND STORE
   const bool isSecondRodAtPlusBigDelta = !isFirstRodAtPlusBigDelta;
-  placeAndStoreRod(secondRod, rodTemplate, isSecondRodAtPlusBigDelta, secondRodCenterPhi);
+  placeAndStoreRod(secondRod, rodTemplate, isSecondRodAtPlusBigDelta, secondRodCenterPhi, placeRadius()); //ladderRadius); //not sure
 
 }
 

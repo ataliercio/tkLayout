@@ -74,6 +74,7 @@ class Layer : public PropertyObject, public Buildable, public Identifiable<int>,
 public:
   typedef PtrVector<RodPair> Container;
 
+  void buildAndStoreSkewedLayer(); //added by Angela
   Property<double, NoDefault> smallDelta, bigDelta;
   Property<int, Default> bigParity;
 
@@ -224,7 +225,7 @@ private:
   void placeAndStoreSecondRod(StraightRodPair* secondRod, const RodTemplate& rodTemplate, 
 			      const bool isFirstRodAtPlusBigDelta, const int firstRodZPlusParity, const double firstRodCenterPhi, 
 			      const double rodCenterPhiShift, const double commonRodCenterPhiShift);
-  void placeAndStoreRod(StraightRodPair* rod, const RodTemplate& rodTemplate, const bool isPlusBigDeltaRod, const double rodCenterPhi);
+  void placeAndStoreRod(StraightRodPair* rod, const RodTemplate& rodTemplate, const bool isPlusBigDeltaRod, const double rodCenterPhi, const double ladderRadius); //not sure
   void buildAndStoreClonedRodsInNonSkewedMode(const StraightRodPair* firstRod, const StraightRodPair* secondRod, 
 					      const double rodCenterPhiShift);
   // dedicated to skewed mode
